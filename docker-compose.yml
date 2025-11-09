@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  frontend:
+    image: khawajasaad05/recruiteryu-frontend:latest
+    container_name: recruiteryu_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    environment:
+      # If your React reads REACT_APP_API_URL at build time, you must rebuild with that value.
+      # If it uses relative paths, you don't need this.
+      - REACT_APP_API_URL=http://13.49.231.67:8000
+
+  backend:
+    image: khawajasaad05/recruiteryu-backend:latest
+    container_name: recruiteryu_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/recruiteryu_db
+      # add any other env vars you need (SECRET_KEY etc.)
+
+  mongo:
+    image: mongo:6.0
+    container_name: recruiteryu_mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
