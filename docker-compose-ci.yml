@@ -1,0 +1,30 @@
+# docker-compose-ci.yml — CI compose for FastAPI backend (mounts code as a volume)
+version: "3.8"
+
+services:
+  backend_ci:
+    image: python:3.10-slim
+    container_name: recruiter_backend_ci
+    working_dir: /app
+    volumes:
+      - ./backend:/app              # mount backend source (assignment requirement)
+    # Robust start: install deps then try common uvicorn entrypoints (main:app, app:app)
+    command: >
+      bash -lc "pip install --no-cache-dir -r requirements.txt || true &&
+      (uvicorn main:app --host 0.0.0.0 --port 8000 || uvicorn app:app --host 0.0.0.0 --port 8000 || uvicorn backend.main:app --host 0.0.0.0 --port 8000)"
+    ports:
+      - "8081:8000"                 # map host 8081 to container 8000 (FastAPI default below)
+    depends_on:
+      - mongo_ci
+
+  mongo_ci:
+    image: mongo:6
+    container_name: recruiter_mongo_ci
+    restart: unless-stopped
+    volumes:
+      - mongo_data_ci:/data/db
+    ports:
+      - "27018:27017"
+
+volumes:
+  mongo_data_ci:
