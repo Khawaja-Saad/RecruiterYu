@@ -21,7 +21,7 @@ pipeline {
     stage('Docker Compose Up') {
       steps {
         // Run docker compose on the host; ensure Jenkins user can run docker
-        sh 'docker compose -f $COMPOSE_FILE up -d --build --remove-orphans'
+        sh 'docker-compose -f $COMPOSE_FILE up -d --build --remove-orphans'
       }
     }
 
@@ -37,7 +37,7 @@ pipeline {
           echo "App root responded"
         else
           echo "App didn't respond on expected endpoints" >&2
-          docker compose -f $COMPOSE_FILE logs --no-color --tail 200 || true
+          docker-compose -f $COMPOSE_FILE logs --no-color --tail 200 || true
           exit 1
         fi
         '''
@@ -51,7 +51,7 @@ pipeline {
     }
     failure {
       echo "CI pipeline failed — printing docker compose logs..."
-      sh 'docker compose -f $COMPOSE_FILE logs --no-color --tail 200 || true'
+      sh 'docker-compose -f $COMPOSE_FILE logs --no-color --tail 200 || true'
     }
   }
 }
