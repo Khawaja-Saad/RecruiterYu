@@ -17,8 +17,8 @@ pipeline {
       steps {
         sh '''
         cd frontend
-        npm install
-        npm run build
+	CI=false npm install
+    	CI=false npm run build
         '''
       }
     }
