@@ -60,9 +60,16 @@ def test_08_refresh_works(driver):
     assert True
 
 def test_09_backend_docs_up(driver):
-    # backend docs served via nginx reverse or direct
-    driver.get("http://host.docker.internal:8081/docs")
-    assert "swagger" in driver.page_source.lower() or "openapi" in driver.page_source.lower()
+    # don't use selenium page_source for this, because /docs may redirect
+    import urllib.request
+
+    url = "http://host.docker.internal:8081/docs"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+
+    with urllib.request.urlopen(req, timeout=15) as r:
+        html = r.read().decode("utf-8", errors="ignore")
+
+    assert ("swagger" in html.lower()) or ("openapi" in html.lower()) or ("swagger ui" in html.lower())
 
 def test_10_backend_openapi_up(driver):
     driver.get("http://host.docker.internal:8081/openapi.json")
