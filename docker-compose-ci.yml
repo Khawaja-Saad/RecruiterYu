@@ -42,6 +42,15 @@ services:
     depends_on:
       - backend_ci
 
+  selenium_tests:
+    build: ./selenium
+    container_name: recruiter_selenium_tests
+    environment:
+      - APP_BASE_URL=http://frontend_ci
+    depends_on:
+      - frontend_ci
+      - backend_ci
+
 volumes:
   mongo_data_ci:
 
