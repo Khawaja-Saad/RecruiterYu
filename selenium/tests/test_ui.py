@@ -60,17 +60,28 @@ def test_08_refresh_works(driver):
     assert True
 
 def test_09_backend_docs_up(driver):
-    # don't use selenium page_source for this, because /docs may redirect
+    import time
     import urllib.request
 
-    url = "http://host.docker.internal:8081/docs"
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    # IMPORTANT: from inside docker, talk to backend container directly
+    url = "http://recruiter_backend_ci:8000/docs"
 
-    with urllib.request.urlopen(req, timeout=15) as r:
-        html = r.read().decode("utf-8", errors="ignore")
+    # retry because backend may still be warming up
+    last_err = None
+    for _ in range(15):
+        try:
+            req = urllib.request.Request(url, method="GET", headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=10) as r:
+                html = r.read().decode("utf-8", errors="ignore")
+            # swagger page contains these strings typically
+            assert ("swagger" in html.lower()) or ("openapi" in html.lower())
+            return
+        except Exception as e:
+            last_err = e
+            time.sleep(2)
 
-    assert ("swagger" in html.lower()) or ("openapi" in html.lower()) or ("swagger ui" in html.lower())
+    raise AssertionError(f"Backend docs not reachable at {url}. Last error: {last_err}")
 
 def test_10_backend_openapi_up(driver):
-    driver.get("http://host.docker.internal:8081/openapi.json")
-    assert "openapi" in driver.page_source.lower() or "{" in driver.page_source
+    driver.get("http://recruiter_backend_ci:8000/openapi.json")
+    assert "openapi" in driver.page_source.lower()
