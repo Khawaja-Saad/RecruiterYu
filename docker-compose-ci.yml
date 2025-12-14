@@ -50,6 +50,8 @@ services:
     depends_on:
       - frontend_ci
       - backend_ci
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
   mongo_data_ci:

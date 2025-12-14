@@ -61,9 +61,9 @@ def test_08_refresh_works(driver):
 
 def test_09_backend_docs_up(driver):
     # backend docs served via nginx reverse or direct
-    driver.get("http://backend_ci:8000/docs")
+    driver.get("http://host.docker.internal:8081/docs")
     assert "swagger" in driver.page_source.lower() or "openapi" in driver.page_source.lower()
 
 def test_10_backend_openapi_up(driver):
-    driver.get("http://backend_ci:8000/openapi.json")
+    driver.get("http://host.docker.internal:8081/openapi.json")
     assert "openapi" in driver.page_source.lower() or "{" in driver.page_source
