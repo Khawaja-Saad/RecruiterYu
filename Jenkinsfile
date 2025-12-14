@@ -26,8 +26,9 @@ pipeline {
     stage('Docker Compose Up') {
       steps {
         sh '''
-          docker-compose -f $COMPOSE_FILE down || true
-          docker-compose -f $COMPOSE_FILE up -d
+	  docker-compose -f $COMPOSE_FILE down --remove-orphans || true
+      	  docker-compose -f $COMPOSE_FILE rm -f -s -v || true
+      	  docker-compose -f $COMPOSE_FILE up -d --build
         '''
       }
     }
